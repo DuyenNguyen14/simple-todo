@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import HorizontalCalendar from '@/components/HorizontalCalendar.vue'
+import { RouterView } from 'vue-router'
 </script>
 
 <template>
-  <div class="bg-amber-50 h-screen w-screen">
+  <!-- <div class="bg-amber-50 h-screen w-screen">
     <div class="container mx-auto pt-[56px] px-[22px] pb-[26px] h-full">
       <div class="flex flex-col justify-between h-full">
         <div class="flex flex-col">
@@ -14,5 +14,6 @@ import HorizontalCalendar from '@/components/HorizontalCalendar.vue'
         <div>input</div>
       </div>
     </div>
-  </div>
+  </div> -->
+  <RouterView />
 </template>
