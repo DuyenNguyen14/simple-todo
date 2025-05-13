@@ -1,7 +1,3 @@
-<script setup lang="ts">
-import { RouterView } from 'vue-router'
-</script>
-
 <template>
   <!-- <div class="bg-amber-50 h-screen w-screen">
     <div class="container mx-auto pt-[56px] px-[22px] pb-[26px] h-full">
@@ -17,3 +13,7 @@ import { RouterView } from 'vue-router'
   </div> -->
   <RouterView />
 </template>
+
+<script setup lang="ts">
+import { RouterView } from 'vue-router'
+</script>
