@@ -9,29 +9,21 @@
     <form @submit.prevent="handleSignup">
       <div class="flex flex-col gap-4">
         <div class="flex flex-col gap-2">
-          <input
-            type="text"
-            class="input"
-            placeholder="Name"
-            id="name"
-            name="name"
-            v-model="name"
-          />
-          <input
-            type="email"
-            class="input"
-            placeholder="Email"
-            id="email"
+          <TextField name="name" placeholder="Name" :value="values.name" :error="errors.name" />
+          <TextField
             name="email"
-            v-model="email"
+            type="email"
+            placeholder="Email"
+            :value="values.email"
+            :error="errors.email"
           />
-          <input
-            type="password"
-            class="input"
-            placeholder="Password"
-            id="password"
+          <TextField
             name="password"
-            v-model="password"
+            required
+            type="password"
+            placeholder="Password"
+            :error="errors.password"
+            :value="values.password"
           />
         </div>
         <button type="submit" class="btn btn-neutral">Sign up</button>
@@ -42,32 +34,53 @@
       >Already have an account? <RouterLink :to="PATH.LOGIN" class="link">Log in</RouterLink></span
     >
   </div>
+
+  <div class="toast">
+    <div class="alert alert-error">
+      <span>abc</span>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
 import { supabase } from '@/apis/supabase'
+import TextField from '@/components/ui/TextField.vue'
 import { PATH } from '@/constants/path'
-import { ref } from 'vue'
+import { toTypedSchema } from '@vee-validate/zod'
+import { useForm } from 'vee-validate'
 import { RouterLink } from 'vue-router'
+import { z } from 'zod'
 
-const name = ref('')
-const email = ref('')
-const password = ref('')
+const schema = z.object({
+  name: z.string({ message: 'Name is required' }),
+  email: z.string({ message: 'Email is required' }).email({ message: 'Invalid email' }),
+  password: z
+    .string({ message: 'Password is required' })
+    .min(6, { message: 'Password must be at least 6 characters' }),
+})
+type SignupForm = z.infer<typeof schema> // extract Typescript type of schema
+const validationSchema = toTypedSchema(schema) // use toTypedSchema to transform Zod's schema to Yup's schema so that vee-validate can understand
 
-const handleSignup = async () => {
-  // console.log('signup', { name: name.value, email: email.value, password: password.value })
+const { handleSubmit, errors, values } = useForm<SignupForm>({
+  validationSchema,
+  validateOnMount: false,
+})
+
+const handleSignup = handleSubmit(async (form) => {
   try {
-    const {} = await supabase.auth.signUp({
-      email: '',
-      password: '',
+    const { name, email, password } = form
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
       options: {
         data: {
-          name: '',
+          name,
         },
       },
     })
+    if (error) alert(error.message)
   } catch (error) {
     console.error(error)
   }
-}
+})
 </script>
