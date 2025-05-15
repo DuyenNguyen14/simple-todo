@@ -26,7 +26,10 @@
             :value="values.password"
           />
         </div>
-        <button type="submit" class="btn btn-neutral">Sign up</button>
+        <button type="submit" class="btn btn-neutral" :class="{ 'btn-disabled': signingUp }">
+          <span v-if="signingUp" class="loading loading-spinner"></span>
+          Sign up
+        </button>
       </div>
     </form>
 
@@ -34,22 +37,22 @@
       >Already have an account? <RouterLink :to="PATH.LOGIN" class="link">Log in</RouterLink></span
     >
   </div>
-
-  <div class="toast">
-    <div class="alert alert-error">
-      <span>abc</span>
-    </div>
-  </div>
 </template>
 
 <script setup lang="ts">
 import { supabase } from '@/apis/supabase'
 import TextField from '@/components/ui/TextField.vue'
 import { PATH } from '@/constants/path'
+import { useToastStore } from '@/stores/toast'
 import { toTypedSchema } from '@vee-validate/zod'
 import { useForm } from 'vee-validate'
-import { RouterLink } from 'vue-router'
+import { ref } from 'vue'
+import { RouterLink, useRouter } from 'vue-router'
 import { z } from 'zod'
+
+const router = useRouter()
+const { addToast } = useToastStore()
+const signingUp = ref(false)
 
 const schema = z.object({
   name: z.string({ message: 'Name is required' }),
@@ -67,6 +70,8 @@ const { handleSubmit, errors, values } = useForm<SignupForm>({
 })
 
 const handleSignup = handleSubmit(async (form) => {
+  signingUp.value = true
+
   try {
     const { name, email, password } = form
     const { error } = await supabase.auth.signUp({
@@ -78,9 +83,15 @@ const handleSignup = handleSubmit(async (form) => {
         },
       },
     })
-    if (error) alert(error.message)
+    if (error) addToast(error.message, 'error')
+    else {
+      addToast('Sign up successful! Log in to continue.', 'success')
+      router.push(PATH.LOGIN)
+    }
   } catch (error) {
     console.error(error)
   }
+
+  signingUp.value = false
 })
 </script>

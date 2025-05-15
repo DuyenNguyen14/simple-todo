@@ -6,7 +6,7 @@
         <h1 class="text-2xl font-semibold text-slate-700">My App</h1>
       </div>
 
-      <div class="w-[400px] rounded-[20px] bg-neutral-100 px-11 py-12 shadow-m">
+      <div class="w-[400px] rounded-[20px] bg-neutral-100 px-11 py-12 shadow-md">
         <RouterView />
       </div>
     </div>
