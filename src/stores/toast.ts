@@ -1,4 +1,3 @@
-import { getUnixTime } from 'date-fns'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 // ----------------------
@@ -12,15 +11,16 @@ export type Toast = {
 // ----------------------
 
 export const useToastStore = defineStore('toast', () => {
+  const count = ref(0)
   const toasts = ref<Toast[]>([])
 
   function addToast(message: string, type?: ToastType) {
-    const id = getUnixTime(new Date())
+    const id = count.value++
     toasts.value.push({ id, message, type: type || 'info' })
 
     setTimeout(() => {
       removeToast(id)
-    }, 3000)
+    }, 5000)
   }
 
   function removeToast(id: number) {

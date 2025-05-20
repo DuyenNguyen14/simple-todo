@@ -26,21 +26,20 @@
             :value="values.password"
           />
         </div>
-        <button type="submit" class="btn btn-neutral" :class="{ 'btn-disabled': signingUp }">
-          <span v-if="signingUp" class="loading loading-spinner"></span>
-          Sign up
-        </button>
+        <LoadingButton :loading="signingUp" :disabled="signingUp">Sign up</LoadingButton>
       </div>
     </form>
 
     <span class="text-sm text-slate-700"
-      >Already have an account? <RouterLink :to="PATH.LOGIN" class="link">Log in</RouterLink></span
+      >Already have an account?
+      <RouterLink :to="PATH.AUTH.LOGIN" class="link">Log in</RouterLink></span
     >
   </div>
 </template>
 
 <script setup lang="ts">
 import { supabase } from '@/apis/supabase'
+import LoadingButton from '@/components/ui/LoadingButton.vue'
 import TextField from '@/components/ui/TextField.vue'
 import { PATH } from '@/constants/path'
 import { useToastStore } from '@/stores/toast'
@@ -86,7 +85,7 @@ const handleSignup = handleSubmit(async (form) => {
     if (error) addToast(error.message, 'error')
     else {
       addToast('Sign up successful! Log in to continue.', 'success')
-      router.push(PATH.LOGIN)
+      router.push(PATH.AUTH.LOGIN)
     }
   } catch (error) {
     console.error(error)

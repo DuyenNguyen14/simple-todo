@@ -1,6 +1,6 @@
 <template>
   <div id="toast-container" class="fixed top-4 right-2 z-50">
-    <transition-group name="toast" tag="div" class="flex flex-col gap-2">
+    <transition-group name="toast" tag="div" class="flex flex-col-reverse gap-2">
       <AppToast v-for="toast in toasts" :key="toast.id" :toast="toast" />
     </transition-group>
   </div>
@@ -24,5 +24,22 @@ const { toasts } = storeToRefs(store)
 .toast-enter-from,
 .toast-leave-to {
   transform: translateX(100%);
+}
+
+.toast-leave-active {
+  transition: all 0.4s ease-in-out;
+  position: absolute;
+  width: 100%;
+  right: 0;
+  top: 0;
+}
+
+.toast-move {
+  transition: transform 0.4s ease-in-out;
+}
+
+.toast-leave-to {
+  transform: translateX(100%);
+  opacity: 0;
 }
 </style>
