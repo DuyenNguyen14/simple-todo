@@ -38,7 +38,6 @@
 </template>
 
 <script setup lang="ts">
-import { supabase } from '@/apis/supabase'
 import LoadingButton from '@/components/ui/LoadingButton.vue'
 import TextField from '@/components/ui/TextField.vue'
 import { PATH } from '@/constants/path'
@@ -52,33 +51,27 @@ import { z } from 'zod'
 
 const router = useRouter()
 const { addToast } = useToastStore()
-const { setUser, fetchSession } = useAuthStore()
+const { login } = useAuthStore()
 
-fetchSession()
 const signingIn = ref(false)
 
 const schema = z.object({
   email: z.string({ message: 'Email is required' }).email({ message: 'Invalid email' }),
   password: z.string({ message: 'Password is required' }),
 })
-type LoginForm = z.infer<typeof schema>
+export type LoginForm = z.infer<typeof schema>
 const validationSchema = toTypedSchema(schema)
 const { handleSubmit, values, errors } = useForm<LoginForm>({ validationSchema })
 
 const handleLogin = handleSubmit(async () => {
   signingIn.value = true
 
-  try {
-    const { error, data } = await supabase.auth.signInWithPassword({
-      email: values.email,
-      password: values.password,
-    })
-    if (error) addToast(error.message, 'error')
-    else if (data) {
-    }
-  } catch (error) {
-    console.error(error)
-  }
+  const res = await login({
+    email: values.email,
+    password: values.password,
+  })
+  if (res?.error) addToast(res.error.message, 'error')
+  else router.push(PATH.HOME)
 
   signingIn.value = false
 })

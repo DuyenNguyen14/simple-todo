@@ -1,12 +1,27 @@
-import TestHomePage from '@/pages/TestHomePage.vue'
-import TestLoginPage from '@/pages/TestLoginPage.vue'
-import useTestAuthStore from '@/stores/test-auth'
+import { PATH } from '@/constants/path'
+import AuthLayout from '@/layouts/AuthLayout.vue'
+import HomePage from '@/pages/HomePage.vue'
+import LoginPage from '@/pages/LoginPage.vue'
+import SignupPage from '@/pages/SignupPage.vue'
+import { useAuthStore } from '@/stores/auth'
 import { storeToRefs } from 'pinia'
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 
-const routes = [
-  { path: '/login', name: 'Login', component: TestLoginPage },
-  { path: '/', name: 'Home', component: TestHomePage, meta: { requiresAuth: true } },
+const routes: RouteRecordRaw[] = [
+  {
+    path: PATH.AUTH.ROOT,
+    component: AuthLayout,
+    children: [
+      { path: PATH.AUTH.LOGIN, name: 'Login', component: LoginPage },
+      { path: PATH.AUTH.SIGNUP, name: 'Signup', component: SignupPage },
+    ],
+  },
+  {
+    path: PATH.HOME,
+    name: 'Home',
+    component: HomePage,
+    meta: { requiresAuth: true },
+  },
 ]
 
 const router = createRouter({
@@ -15,12 +30,15 @@ const router = createRouter({
 })
 
 router.beforeEach(async (to, from, next) => {
-  const store = useTestAuthStore()
-  const { user } = storeToRefs(store)
+  const store = useAuthStore()
+  const { isInitialized, isAuthenticated } = storeToRefs(store)
 
-  console.log('user.value >> ', user.value)
+  if (isInitialized.value) {
+    await store.fetchSession()
+  }
 
-  if (!user.value && to.meta.requiresAuth) next({ name: 'Login' })
+  if (to.meta.requiresAuth && !isAuthenticated.value) next({ name: 'Login' })
+  else if (to.path.includes(PATH.AUTH.ROOT) && isAuthenticated.value) next({ name: 'Home' })
   else next()
 })
 
